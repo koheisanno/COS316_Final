@@ -4,6 +4,14 @@
 #include <linux/if_ether.h>
 #include <arpa/inet.h>
 
+struct bpf_map_def {
+	unsigned int type;
+	unsigned int key_size;
+	unsigned int value_size;
+	unsigned int max_entries;
+	unsigned int map_flags;
+};
+
 struct bpf_map_def SEC("maps") ip_list = {
     .map_type = BPF_MAP_TYPE_HASH,
     .key_size = sizeof(__u32),
