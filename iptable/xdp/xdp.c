@@ -25,7 +25,7 @@ int xdp_iptable(struct xdp_md *ctx)
     // get the protocol from the Ethernet header
     h_proto = eth->h_proto;
 
-    if (h_proto == bpf_htons(ETH_P_IP)) {
+    if (h_proto == htons(ETH_P_IP)) {
 		iph = data + sizeof(struct ethhdr);
 
         u32 ip_src = iph->saddr;
