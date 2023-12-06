@@ -11,13 +11,7 @@ import (
 
 func main() {
 
-	// Specify Interface Name
 	interfaceName := "lo"
-	// IP BlockList
-	// Add the IPs you want to be blocked
-	ipList := []string{
-		"8.8.8.8",
-	}
 
 	// Load XDP Into App
 	bpf := goebpf.NewDefaultEbpfSystem()
