@@ -1,5 +1,6 @@
 #include <linux/bpf.h>
-#include <bpf/bpf_helpers.h>
+#include <linux/ip.h>
+#include "bpf_helpers.h"
 #include <linux/if_ether.h>
 #include <arpa/inet.h>
 
@@ -32,6 +33,7 @@ int xdp_iptable(struct xdp_md *ctx)
 		iph = data + sizeof(struct ethhdr);
 
         __u32 ip_src = iph->saddr;
+        bpf_printk("source ip address is %u\n", ip_src);
         __u64 *rule_idx = bpf_map_lookup_elem(&ip_list, &ip_src);
         if (rule_idx) {
             // Matched, increase match counter for matched "rule"
