@@ -10,10 +10,8 @@ import (
 )
 
 func main() {
-
 	interfaceName := "lo"
 
-	// Load XDP Into App
 	bpf := goebpf.NewDefaultEbpfSystem()
 	err := bpf.LoadElf("xdp/xdp.o")
 	if err != nil {
