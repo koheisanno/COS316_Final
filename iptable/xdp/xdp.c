@@ -31,7 +31,6 @@ int xdp_iptable(struct xdp_md *ctx)
 		iph = data + sizeof(struct ethhdr);
 
         __u32 ip_src = iph->saddr;
-        bpf_printk("source ip address is %u\n", ip_src);
         __u64 *rule_idx = bpf_map_lookup_elem(&ip_list, &ip_src);
         if (rule_idx) {
             // Matched, increase match counter for matched "rule"
