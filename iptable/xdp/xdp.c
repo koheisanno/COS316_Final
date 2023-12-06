@@ -4,12 +4,14 @@
 #include <linux/if_ether.h>
 #include <arpa/inet.h>
 
-struct {
-    __uint(type, BPF_MAP_TYPE_HASH);
-    __type(key, __u32);
-    __type(value, __u32);
-    __uint(max_entries, 256);
-} ip_list SEC(".maps");
+BPF_MAP_DEF(ip_list) = {
+    .map_type = BPF_MAP_TYPE_HASH,
+    .key_size = sizeof(__u32),
+    .value_size = sizeof(__u32),
+    .max_entries = 256,
+};
+
+BPF_MAP_ADD(ip_list);
 
 SEC("xdp")
 int xdp_iptable(struct xdp_md *ctx)
