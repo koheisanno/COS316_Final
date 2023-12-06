@@ -17,6 +17,7 @@ int xdp_iptable(struct xdp_md *ctx)
     void *data = (void *)(long)ctx->data;
     struct ethhdr *eth = data;
     __u16 h_proto;
+    struct iphdr *iph;
 
     // Check if packet is large enough to contain an Ethernet header
     if (data + sizeof(struct ethhdr) > data_end)
