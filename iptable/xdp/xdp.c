@@ -34,7 +34,6 @@ int xdp_iptable(struct xdp_md *ctx)
         __u64 *rule_idx = bpf_map_lookup_elem(&ip_list, &ip_src);
         if (rule_idx) {
             // Matched, increase match counter for matched "rule"
-            __u32 index = *(__u32*)rule_idx;  // make verifier happy
             return XDP_DROP;
         }
 	}
