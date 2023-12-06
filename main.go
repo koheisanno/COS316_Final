@@ -21,7 +21,7 @@ func main() {
 
 	// Load XDP Into App
 	bpf := goebpf.NewDefaultEbpfSystem()
-	err := bpf.LoadElf("xdp/xdp.elf")
+	err := bpf.LoadElf("xdp/xdp.o")
 	if err != nil {
 		log.Fatalf("LoadELF() failed: %s", err)
 	}
