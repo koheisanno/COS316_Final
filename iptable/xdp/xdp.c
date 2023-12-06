@@ -29,7 +29,7 @@ int xdp_iptable(struct xdp_md *ctx)
     if (h_proto == htons(ETH_P_IP)) {
 		iph = data + sizeof(struct ethhdr);
 
-        u32 ip_src = iph->saddr;
+        __u32 ip_src = iph->saddr;
         bpf_printk("source ip address is %u\n", ip_src);
         __u64 *rule_idx = bpf_map_lookup_elem(&ip_list, &ip_src);
         if (rule_idx) {
