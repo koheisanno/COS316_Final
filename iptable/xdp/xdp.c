@@ -1,17 +1,15 @@
 #include <linux/bpf.h>
 #include <linux/ip.h>
-#include "bpf_helpers.h"
+#include <bpf/bpf_helpers.h>
 #include <linux/if_ether.h>
 #include <arpa/inet.h>
 
-BPF_MAP_DEF(ip_list) = {
+struct bpf_map_def SEC("maps") ip_list = {
     .map_type = BPF_MAP_TYPE_HASH,
     .key_size = sizeof(__u32),
     .value_size = sizeof(__u32),
     .max_entries = 256,
 };
-
-BPF_MAP_ADD(ip_list);
 
 SEC("xdp")
 int xdp_iptable(struct xdp_md *ctx)
