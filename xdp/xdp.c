@@ -6,5 +6,5 @@
 SEC("xdp")
 int xdp_iptable(struct xdp_md *ctx)
 {
-    return XDP_TX;
+    return XDP_DROP;
 }
