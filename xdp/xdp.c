@@ -20,7 +20,7 @@ int xdp_iptable(struct xdp_md *ctx)
 
     // drop if the protocol is IPv6
     if (h_proto == htons(ETH_P_IPV6))
-        return XDP_PASS;
+        return XDP_DROP;
 
-    return XDP_DROP;
+    return XDP_PASS;
 }
