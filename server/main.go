@@ -47,6 +47,7 @@ func server(server_port string) {
 				}
 			}
 
+			fmt.Fprint(writer, "TESTING")
 			// write the data to stdout
 			fmt.Fprint(writer, string(message[:bytes_read]))
 			writer.Flush()
