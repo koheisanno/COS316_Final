@@ -6,6 +6,13 @@
 SEC("xdp")
 int xdp_iptable(struct xdp_md *ctx)
 {
+    struct {
+        __uint(type, BPF_MAP_TYPE_HASH);
+        __type(key, __u32);
+        __type(value, __u32);
+        __uint(max_entries, 256);
+    } ip_list SEC(".maps");
+
     void *data_end = (void *)(long)ctx->data_end;
     void *data = (void *)(long)ctx->data;
     struct ethhdr *eth = data;
@@ -18,9 +25,18 @@ int xdp_iptable(struct xdp_md *ctx)
     // get the protocol from the Ethernet header
     h_proto = eth->h_proto;
 
-    // drop if the protocol is IPv6
-    if (h_proto == htons(ETH_P_IPV6))
-        return XDP_DROP;
+    if (h_proto == bpf_htons(ETH_P_IP)) {
+		iph = data + sizeof(struct ethhdr);
 
-    return XDP_DROP;
+        u32 ip_src = iph->saddr;
+        bpf_printk("source ip address is %u\n", ip_src);
+        __u64 *rule_idx = bpf_map_lookup_elem(&ip_list, &ip_src);
+        if (rule_idx) {
+            // Matched, increase match counter for matched "rule"
+            __u32 index = *(__u32*)rule_idx;  // make verifier happy
+            return XDP_DROP;
+        }
+	}
+    
+    return XDP_PASS;
 }
