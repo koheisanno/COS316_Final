@@ -3,16 +3,16 @@
 #include <linux/if_ether.h>
 #include <arpa/inet.h>
 
+struct {
+    __uint(type, BPF_MAP_TYPE_HASH);
+    __type(key, __u32);
+    __type(value, __u32);
+    __uint(max_entries, 256);
+} ip_list SEC(".maps");
+
 SEC("xdp")
 int xdp_iptable(struct xdp_md *ctx)
 {
-    struct {
-        __uint(type, BPF_MAP_TYPE_HASH);
-        __type(key, __u32);
-        __type(value, __u32);
-        __uint(max_entries, 256);
-    } ip_list SEC(".maps");
-
     void *data_end = (void *)(long)ctx->data_end;
     void *data = (void *)(long)ctx->data;
     struct ethhdr *eth = data;
