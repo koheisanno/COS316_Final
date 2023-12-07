@@ -54,21 +54,12 @@ int xdp_iptable(struct xdp_md *ctx)
     // Check if packet is large enough to contain an Ethernet header
     if (data + sizeof(struct ethhdr) > data_end)
         return XDP_DROP;
-    
-    print(data)
 
     // get the protocol from the Ethernet header
     h_proto = eth->h_proto;
 
     if (h_proto == htons(ETH_P_IP)) {
-		iph = data + sizeof(struct ethhdr);
-
-        __u32 ip_src = iph->saddr;
-        __u64 *rule_idx = bpf_map_lookup_elem(&ip_list, &ip_src);
-        if (rule_idx) {
-            // Matched, increase match counter for matched "rule"
-            return XDP_DROP;
-        }
+        return XDP_PASS;
 	}
     
     return XDP_PASS;
