@@ -13,7 +13,7 @@ func main() {
 	interfaceName := "lo"
 
 	bpf := goebpf.NewDefaultEbpfSystem()
-	err := bpf.LoadElf("xdp/xdp.o")
+	err := bpf.LoadElf("xdp/xdp.elf")
 	if err != nil {
 		log.Fatalf("LoadELF() failed: %s", err)
 	}
