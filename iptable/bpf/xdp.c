@@ -1,5 +1,6 @@
 #include "bpf_helpers.h"
 #include <arpa/inet.h>
+#include <linux/if_ether.h>
 
 
 // Ethernet header
