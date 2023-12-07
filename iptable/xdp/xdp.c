@@ -3,6 +3,7 @@
 #include <bpf/bpf_helpers.h>
 #include <linux/if_ether.h>
 #include <arpa/inet.h>
+#include <sys/queue.h>
 
 struct bpf_map_def {
 	unsigned int type;
