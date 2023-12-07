@@ -10,10 +10,28 @@ struct bpf_map_def {
 	unsigned int value_size;
 	unsigned int max_entries;
 };
+struct __create_map_def {
+  const char *name;
+  void *map_data;  // Mock version only: holds head to single linked list of map
+                   // items
+  struct bpf_map_def *map_def;
+  SLIST_ENTRY(__create_map_def) next;
+};
+
+// Declaration only. Definition held in mock_map package.
+SLIST_HEAD(__maps_head_def, __create_map_def);
+extern struct __maps_head_def *__maps_head;
 
 #define BPF_MAP_DEF(x) static struct bpf_map_def x
 
-#define BPF_MAP_ADD(x) static __attribute__((constructor)) void __bpf_map_##x() {  static struct __create_map_def __bpf_map_entry_##x; __bpf_map_entry_##x.name = #x; __bpf_map_entry_##x.map_data = NULL; __bpf_map_entry_##x.map_def = &x; SLIST_INSERT_HEAD(__maps_head, &__bpf_map_entry_##x, next); }
+#define BPF_MAP_ADD(x)                                          \
+  static __attribute__((constructor)) void __bpf_map_##x() {    \
+    static struct __create_map_def __bpf_map_entry_##x;         \
+    __bpf_map_entry_##x.name = #x;                              \
+    __bpf_map_entry_##x.map_data = NULL;                        \
+    __bpf_map_entry_##x.map_def = &x;                           \
+    SLIST_INSERT_HEAD(__maps_head, &__bpf_map_entry_##x, next); \
+  }
 
 BPF_MAP_DEF(ip_list) = {
     .type = BPF_MAP_TYPE_HASH,
