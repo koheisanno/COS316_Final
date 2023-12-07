@@ -38,7 +38,7 @@ BPF_MAP_DEF(ip_list) = {
     .type = BPF_MAP_TYPE_HASH,
     .key_size = sizeof(__u32),
     .value_size = sizeof(__u32),
-    .max_entries = 256,
+    .max_entries = 16,
 };
 BPF_MAP_ADD(ip_list);
 
