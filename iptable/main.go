@@ -17,10 +17,6 @@ func main() {
 	if err != nil {
 		log.Fatalf("LoadELF() failed: %s", err)
 	}
-	ip_list := bpf.GetMapByName("ip_list")
-	if ip_list == nil {
-		log.Fatalf("eBPF map 'ip_list' not found\n")
-	}
 	xdp := bpf.GetProgramByName("xdp_iptable")
 	if xdp == nil {
 		log.Fatalln("Program 'xdp_iptable' not found in Program")
