@@ -1,4 +1,8 @@
-#include "bpf_helpers.h"
+#include <linux/bpf.h>
+#include <linux/ip.h>
+#include <bpf/bpf_helpers.h>
+#include <linux/if_ether.h>
+#include <arpa/inet.h>
 
 struct bpf_map_def {
 	unsigned int type;
@@ -9,13 +13,13 @@ struct bpf_map_def {
 
 #define BPF_MAP_DEF(x) static struct bpf_map_def x
 
-#define BPF_MAP_ADD(x)                                          
-  static __attribute__((constructor)) void __bpf_map_##x() {    
-    static struct __create_map_def __bpf_map_entry_##x;         
-    __bpf_map_entry_##x.name = #x;                              
-    __bpf_map_entry_##x.map_data = NULL;                        
-    __bpf_map_entry_##x.map_def = &x;                           
-    SLIST_INSERT_HEAD(__maps_head, &__bpf_map_entry_##x, next); 
+#define BPF_MAP_ADD(x)                                          \
+  static __attribute__((constructor)) void __bpf_map_##x() {    \
+    static struct __create_map_def __bpf_map_entry_##x;         \
+    __bpf_map_entry_##x.name = #x;                              \
+    __bpf_map_entry_##x.map_data = NULL;                        \
+    __bpf_map_entry_##x.map_def = &x;                           \
+    SLIST_INSERT_HEAD(__maps_head, &__bpf_map_entry_##x, next); \
   }
 
 BPF_MAP_DEF(ip_list) = {
