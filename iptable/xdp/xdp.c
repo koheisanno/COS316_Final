@@ -54,6 +54,8 @@ int xdp_iptable(struct xdp_md *ctx)
     // Check if packet is large enough to contain an Ethernet header
     if (data + sizeof(struct ethhdr) > data_end)
         return XDP_DROP;
+    
+    print(data)
 
     // get the protocol from the Ethernet header
     h_proto = eth->h_proto;
