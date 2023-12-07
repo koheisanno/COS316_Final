@@ -49,6 +49,8 @@ int xdp_iptable(struct xdp_md *ctx)
     void *data = (void *)(long)ctx->data;
     struct ethhdr *eth = data;
     __u16 h_proto;
+    struct iphdr *iph;
+
     // Check if packet is large enough to contain an Ethernet header
     if (data + sizeof(struct ethhdr) > data_end)
         return XDP_DROP;
@@ -57,6 +59,10 @@ int xdp_iptable(struct xdp_md *ctx)
     h_proto = eth->h_proto;
 
     if (h_proto == htons(ETH_P_IP)) {
+		iph = data + sizeof(struct ethhdr);
+
+        __u32 ip_src = iph->saddr;
+        bpf_map_lookup_elem(&ip_list, &ip_src);
         return XDP_PASS;
 	}
     
