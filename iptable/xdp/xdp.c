@@ -1,8 +1,4 @@
-#include <linux/bpf.h>
-#include <linux/ip.h>
-#include <bpf/bpf_helpers.h>
-#include <linux/if_ether.h>
-#include <arpa/inet.h>
+#include "bpf_helpers.h"
 
 struct bpf_map_def {
 	unsigned int type;
