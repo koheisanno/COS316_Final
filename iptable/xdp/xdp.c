@@ -1,5 +1,29 @@
 #include "bpf_helpers.h"
-#include <linux/ip.h>
+#include <arpa/inet.h>
+
+
+// Ethernet header
+struct ethhdr {
+  __u8 h_dest[6];
+  __u8 h_source[6];
+  __u16 h_proto;
+} __attribute__((packed));
+
+// IPv4 header
+struct iphdr {
+  __u8 ihl : 4;
+  __u8 version : 4;
+  __u8 tos;
+  __u16 tot_len;
+  __u16 id;
+  __u16 frag_off;
+  __u8 ttl;
+  __u8 protocol;
+  __u16 check;
+  __u32 saddr;
+  __u32 daddr;
+} __attribute__((packed));
+
 
 
 BPF_MAP_DEF(blacklist) = {
@@ -23,7 +47,7 @@ int firewall(struct xdp_md *ctx) {
     return XDP_ABORTED;
   }
 
-  if (ether->h_proto != 0x08U) {  // htons(ETH_P_IP) -> 0x08U
+  if (ether->h_proto != htons(ETH_P_IP)) {  // htons(ETH_P_IP) -> 0x08U
     // Non IPv4 traffic
     return XDP_PASS;
   }
