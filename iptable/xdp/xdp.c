@@ -6,7 +6,7 @@
 #include <sys/queue.h>
 
 struct bpf_map_def {
-	unsigned int type;
+	unsigned int map_type;
 	unsigned int key_size;
 	unsigned int value_size;
 	unsigned int max_entries;
