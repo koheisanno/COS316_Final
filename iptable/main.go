@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"os/signal"
 	"strings"
 
 	"github.com/dropbox/goebpf"
@@ -38,6 +39,13 @@ func main() {
 		log.Fatalf("eBPF map 'blacklist' not found\n")
 	}
 	log.Println("XDP Program Loaded successfuly into the Kernel.")
+
+	defer xdp.Detach()
+	ctrlC := make(chan os.Signal, 1)
+	signal.Notify(ctrlC, os.Interrupt)
+	log.Println("XDP Program Loaded successfuly into the Kernel.")
+	log.Println("Press CTRL+C or type 'quit' to stop.")
+	<-ctrlC
 
 	reader := bufio.NewReader(os.Stdin)
 	for {
