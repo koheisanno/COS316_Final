@@ -1,12 +1,10 @@
 package main
 
 import (
-	"bufio"
 	"fmt"
 	"log"
 	"os"
 	"os/signal"
-	"strings"
 
 	"github.com/dropbox/goebpf"
 )
@@ -46,17 +44,6 @@ func main() {
 	}
 
 	BlockIPAddress(ipList, blacklist)
-
-	reader := bufio.NewReader(os.Stdin)
-	for {
-		line, err := reader.ReadString('\n')
-		// lose trailing whitespace
-		line = strings.TrimRight(line, " \t\r\n")
-		if err != nil {
-			break
-		}
-		log.Println(line)
-	}
 
 	defer xdp.Detach()
 	ctrlC := make(chan os.Signal, 1)
