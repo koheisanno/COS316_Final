@@ -37,6 +37,7 @@ func main() {
 	if blacklist == nil {
 		log.Fatalf("eBPF map 'blacklist' not found\n")
 	}
+	log.Println("XDP Program Loaded successfuly into the Kernel.")
 
 	reader := bufio.NewReader(os.Stdin)
 	for {
