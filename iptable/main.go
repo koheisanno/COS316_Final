@@ -58,16 +58,9 @@ func main() {
 		for {
 			line, err := reader.ReadString('\n')
 			if err != nil {
-				log.Println("Detached")
-				xdp.Detach()
-				return
+				log.Println("Invalid input: %s", err)
 			}
 			line = strings.TrimRight(line, " \t\r\n")
-			if line == "quit" {
-				log.Println("Detached")
-				xdp.Detach()
-				return
-			}
 			log.Println("Input: ", line)
 			// Send what we read over the channel
 			msg <- line
@@ -78,10 +71,7 @@ loop:
 	for {
 		select {
 		case <-sigs:
-			log.Println("Detached")
-			xdp.Detach()
-			// Break out of the outer for statement and end the program
-			break loop
+			goto exit
 		case s := <-msg:
 			if s == "quit" {
 				log.Println("Detached")
@@ -99,6 +89,9 @@ loop:
 			}
 		}
 	}
+exit:
+	log.Println("Detached")
+	xdp.Detach()
 }
 
 // The Function That adds the IPs to the blacklist map
