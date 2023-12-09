@@ -29,7 +29,7 @@ func main() {
 	if err != nil {
 		fmt.Printf("xdp.Attach(): %v", err)
 	}
-	err = xdp.Attach(interfaceName)
+	err = xdp.Attach(*interfaceName)
 	if err != nil {
 		log.Fatalf("Error attaching to Interface: %s", err)
 	}
