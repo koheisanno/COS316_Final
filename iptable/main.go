@@ -4,8 +4,6 @@ import (
 	"flag"
 	"fmt"
 	"log"
-	"os"
-	"os/signal"
 
 	"github.com/dropbox/goebpf"
 )
@@ -31,35 +29,29 @@ func main() {
 	if err != nil {
 		fmt.Printf("xdp.Attach(): %v", err)
 	}
-	err = xdp.Attach(*interfaceName)
-	if err != nil {
-		log.Fatalf("Error attaching to Interface: %s", err)
-	}
 
-	log.Println(*action)
-
-	if *action == "add" {
+	if *action == "start" {
+		err = xdp.Attach(*interfaceName)
+		if err != nil {
+			log.Fatalf("Error attaching to Interface: %s", err)
+		}
+		log.Println("XDP Program Loaded successfuly into the Kernel.")
+	} else if *action == "add" {
 		blacklist := bpf.GetMapByName("blacklist")
 		if blacklist == nil {
 			log.Fatalf("eBPF map 'blacklist' not found\n")
 		}
 		AddIPAddress(blacklist, *ipAddress)
 	} else if *action == "stop" {
+		log.Println("Detached")
 		xdp.Detach()
-	} else {
-		defer xdp.Detach()
-		ctrlC := make(chan os.Signal, 1)
-		signal.Notify(ctrlC, os.Interrupt)
-		log.Println("XDP Program Loaded successfuly into the Kernel.")
-		log.Println("Press CTRL+C to stop.")
-		<-ctrlC
 	}
 }
 
 // The Function That adds the IPs to the blacklist map
 func AddIPAddress(blacklist goebpf.Map, ipAddress string) error {
 	log.Println(goebpf.CreateLPMtrieKey(ipAddress))
-	err := blacklist.Insert(goebpf.CreateLPMtrieKey(ipAddress), 1)
+	err := blacklist.Insert(goebpf.CreateLPMtrieKey(ipAddress), 0)
 	if err != nil {
 		return err
 	}
