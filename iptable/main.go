@@ -1,9 +1,12 @@
 package main
 
 import (
+	"bufio"
 	"flag"
 	"fmt"
 	"log"
+	"os"
+	"strings"
 
 	"github.com/dropbox/goebpf"
 )
@@ -29,22 +32,35 @@ func main() {
 	if err != nil {
 		fmt.Printf("xdp.Attach(): %v", err)
 	}
+	err = xdp.Attach(*interfaceName)
+	if err != nil {
+		log.Fatalf("Error attaching to Interface: %s", err)
+	}
+	blacklist := bpf.GetMapByName("blacklist")
+	if blacklist == nil {
+		log.Fatalf("eBPF map 'blacklist' not found\n")
+	}
 
-	if *action == "start" {
-		err = xdp.Attach(*interfaceName)
+	reader := bufio.NewReader(os.Stdin)
+	for {
+		line, err := reader.ReadString('\n')
+		line = strings.TrimRight(line, " \t\r\n")
 		if err != nil {
-			log.Fatalf("Error attaching to Interface: %s", err)
+			break
+		} else if line == "quit" {
+			log.Println("Detached")
+			xdp.Detach()
+			break
+		} else {
+			action := strings.Split(line, " ")[0]
+
+			if action == "add" {
+				ip := strings.Split(line, " ")[1]
+				log.Println("add" + ip)
+
+				AddIPAddress(blacklist, ip)
+			}
 		}
-		log.Println("XDP Program Loaded successfuly into the Kernel.")
-	} else if *action == "add" {
-		blacklist := bpf.GetMapByName("blacklist")
-		if blacklist == nil {
-			log.Fatalf("eBPF map 'blacklist' not found\n")
-		}
-		AddIPAddress(blacklist, *ipAddress)
-	} else if *action == "stop" {
-		log.Println("Detached")
-		xdp.Detach()
 	}
 }
 
