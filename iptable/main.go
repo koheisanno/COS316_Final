@@ -61,7 +61,7 @@ func main() {
 				log.Println("Invalid input: %s", err)
 			} else {
 				line = strings.TrimRight(line, " \t\r\n")
-				log.Println("Input: ", line)
+				log.Println("Input:", line)
 				// Send what we read over the channel
 				msg <- line
 			}
@@ -72,27 +72,19 @@ loop:
 	for {
 		select {
 		case <-sigs:
-			goto exit
+			log.Println("Detached")
+			xdp.Detach()
+			break loop
 		case s := <-msg:
-			if s == "quit" {
-				log.Println("Detached")
-				xdp.Detach()
-				break loop
-			} else {
-				action := strings.Split(s, " ")[0]
+			action := strings.Split(s, " ")[0]
 
-				if action == "add" {
-					ip := strings.Split(s, " ")[1]
-					log.Println("add" + ip)
+			if action == "add" {
+				ip := strings.Split(s, " ")[1]
 
-					AddIPAddress(blacklist, ip)
-				}
+				AddIPAddress(blacklist, ip)
 			}
 		}
 	}
-exit:
-	log.Println("Detached")
-	xdp.Detach()
 }
 
 // The Function That adds the IPs to the blacklist map
