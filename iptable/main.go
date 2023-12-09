@@ -2,7 +2,6 @@ package main
 
 import (
 	"bufio"
-	"flag"
 	"fmt"
 	"log"
 	"os"
@@ -13,8 +12,6 @@ import (
 )
 
 func main() {
-	action := flag.String("action", "start", "action")
-
 	// IP BlockList
 	// Add the IPs you want to be blocked
 	ipList := []string{
