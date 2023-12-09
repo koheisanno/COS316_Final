@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bufio"
 	"flag"
 	"fmt"
 	"log"
@@ -51,14 +52,18 @@ func main() {
 	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
 
 	msg := make(chan string, 1)
+	reader := bufio.NewReader(os.Stdin)
 	go func() {
 		// Receive input in a loop
 		for {
-			var s string
-			fmt.Scanln(&s)
-			log.Println("Input: ", s)
+			line, err := reader.ReadString('\n')
+			if err != nil {
+				break
+			}
+			line = strings.TrimRight(line, " \t\r\n")
+			log.Println("Input: ", line)
 			// Send what we read over the channel
-			msg <- s
+			msg <- line
 		}
 	}()
 
