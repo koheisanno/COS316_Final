@@ -15,6 +15,8 @@ func main() {
 	action := flag.String("action", "start", "action")
 	ipAddress := flag.String("ip", "10.10.10.10", "ip address")
 
+	flag.Parse()
+
 	// Load XDP Into App
 	bpf := goebpf.NewDefaultEbpfSystem()
 	err := bpf.LoadElf("bpf/xdp.elf")
