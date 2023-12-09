@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"os/signal"
 	"strings"
 
 	"github.com/dropbox/goebpf"
@@ -40,18 +39,12 @@ func main() {
 	}
 	log.Println("XDP Program Loaded successfuly into the Kernel.")
 
-	defer xdp.Detach()
-	ctrlC := make(chan os.Signal, 1)
-	signal.Notify(ctrlC, os.Interrupt)
-	log.Println("XDP Program Loaded successfuly into the Kernel.")
-	log.Println("Press CTRL+C or type 'quit' to stop.")
-	<-ctrlC
-
 	reader := bufio.NewReader(os.Stdin)
 	for {
 		line, err := reader.ReadString('\n')
 		line = strings.TrimRight(line, " \t\r\n")
 		if err != nil {
+			log.Println(err)
 			break
 		} else if line == "quit" {
 			log.Println("Detached")
