@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"log"
 	"os"
@@ -10,14 +11,9 @@ import (
 )
 
 func main() {
-	// IP BlockList
-	// Add the IPs you want to be blocked
-	ipList := []string{
-		"12.12.11.32",
-		"146.190.33.175",
-	}
-
-	interfaceName := "lo"
+	interfaceName := flag.String("interface", "lo", "interface name")
+	action := flag.String("action", "start", "action")
+	ipAddress := flag.String("ip", "10.10.10.10", "ip address")
 
 	// Load XDP Into App
 	bpf := goebpf.NewDefaultEbpfSystem()
@@ -25,11 +21,6 @@ func main() {
 	if err != nil {
 		log.Fatalf("LoadELF() failed: %s", err)
 	}
-	blacklist := bpf.GetMapByName("blacklist")
-	if blacklist == nil {
-		log.Fatalf("eBPF map 'blacklist' not found\n")
-	}
-
 	xdp := bpf.GetProgramByName("firewall")
 	if xdp == nil {
 		log.Fatalln("Program 'firewall' not found in Program")
@@ -43,7 +34,15 @@ func main() {
 		log.Fatalf("Error attaching to Interface: %s", err)
 	}
 
-	BlockIPAddress(ipList, blacklist)
+	if *action == "add" {
+		blacklist := bpf.GetMapByName("blacklist")
+		if blacklist == nil {
+			log.Fatalf("eBPF map 'blacklist' not found\n")
+		}
+		AddIPAddress(blacklist, *ipAddress)
+	} else if *action == "stop" {
+		xdp.Detach()
+	}
 
 	defer xdp.Detach()
 	ctrlC := make(chan os.Signal, 1)
@@ -51,16 +50,14 @@ func main() {
 	log.Println("XDP Program Loaded successfuly into the Kernel.")
 	log.Println("Press CTRL+C to stop.")
 	<-ctrlC
-
 }
 
 // The Function That adds the IPs to the blacklist map
-func BlockIPAddress(ipAddreses []string, blacklist goebpf.Map) error {
-	for index, ip := range ipAddreses {
-		err := blacklist.Insert(goebpf.CreateLPMtrieKey(ip), index)
-		if err != nil {
-			return err
-		}
+func AddIPAddress(blacklist goebpf.Map, ipAddress string) error {
+	log.Println(goebpf.CreateLPMtrieKey(ipAddress))
+	err := blacklist.Insert(goebpf.CreateLPMtrieKey(ipAddress), ipAddress)
+	if err != nil {
+		return err
 	}
 	return nil
 }
