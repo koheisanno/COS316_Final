@@ -59,11 +59,12 @@ func main() {
 			line, err := reader.ReadString('\n')
 			if err != nil {
 				log.Println("Invalid input: %s", err)
+			} else {
+				line = strings.TrimRight(line, " \t\r\n")
+				log.Println("Input: ", line)
+				// Send what we read over the channel
+				msg <- line
 			}
-			line = strings.TrimRight(line, " \t\r\n")
-			log.Println("Input: ", line)
-			// Send what we read over the channel
-			msg <- line
 		}
 	}()
 
