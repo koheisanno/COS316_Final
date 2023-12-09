@@ -58,11 +58,15 @@ func main() {
 		for {
 			line, err := reader.ReadString('\n')
 			if err != nil {
-				break
+				log.Println("Detached")
+				xdp.Detach()
+				return
 			}
 			line = strings.TrimRight(line, " \t\r\n")
 			if line == "quit" {
-				break
+				log.Println("Detached")
+				xdp.Detach()
+				return
 			}
 			log.Println("Input: ", line)
 			// Send what we read over the channel
