@@ -17,6 +17,7 @@ func main() {
 	// Add the IPs you want to be blocked
 	ipList := []string{
 		"12.12.11.32",
+		"146.190.33.175",
 	}
 
 	// Load XDP Into App

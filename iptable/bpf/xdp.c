@@ -25,7 +25,7 @@ int firewall(struct xdp_md *ctx) {
     return XDP_ABORTED;
   }
 
-  if (ether->h_proto != htons(ETH_P_IP)) {  // htons(ETH_P_IP) -> 0x08U
+  if (ether->h_proto != htons(ETH_P_IP)) {
     // Non IPv4 traffic
     return XDP_PASS;
   }
