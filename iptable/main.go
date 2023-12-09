@@ -1,64 +1,46 @@
 package main
 
 import (
-	"bufio"
-	"flag"
 	"fmt"
 	"log"
 	"os"
-	"strings"
+	"os/signal"
+	"syscall"
 
 	"github.com/dropbox/goebpf"
 )
 
 func main() {
-	interfaceName := flag.String("interface", "lo", "interface name")
-	flag.Parse()
+	// Go signal notification works by sending `os.Signal`
+	// values on a channel. We'll create a channel to
+	// receive these notifications (we'll also make one to
+	// notify us when the program can exit).
+	sigs := make(chan os.Signal, 1)
 
-	// Load XDP Into App
-	bpf := goebpf.NewDefaultEbpfSystem()
-	err := bpf.LoadElf("bpf/xdp.elf")
-	if err != nil {
-		log.Fatalf("LoadELF() failed: %s", err)
-	}
-	xdp := bpf.GetProgramByName("firewall")
-	if xdp == nil {
-		log.Fatalln("Program 'firewall' not found in Program")
-	}
-	err = xdp.Load()
-	if err != nil {
-		fmt.Printf("xdp.Attach(): %v", err)
-	}
-	err = xdp.Attach(*interfaceName)
-	if err != nil {
-		log.Fatalf("Error attaching to Interface: %s", err)
-	}
-	blacklist := bpf.GetMapByName("blacklist")
-	if blacklist == nil {
-		log.Fatalf("eBPF map 'blacklist' not found\n")
-	}
-	log.Println("XDP Program Loaded successfuly into the Kernel.")
+	// `signal.Notify` registers the given channel to
+	// receive notifications of the specified signals.
+	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
 
-	reader := bufio.NewReader(os.Stdin)
+	msg := make(chan string, 1)
+	go func() {
+		// Receive input in a loop
+		for {
+			var s string
+			fmt.Scan(&s)
+			// Send what we read over the channel
+			msg <- s
+		}
+	}()
+
+loop:
 	for {
-		line, err := reader.ReadString('\n')
-		line = strings.TrimRight(line, " \t\r\n")
-		if err != nil {
-			log.Println(err)
-			break
-		} else if line == "quit" {
-			log.Println("Detached")
-			xdp.Detach()
-			break
-		} else {
-			action := strings.Split(line, " ")[0]
-
-			if action == "add" {
-				ip := strings.Split(line, " ")[1]
-				log.Println("add" + ip)
-
-				AddIPAddress(blacklist, ip)
-			}
+		select {
+		case <-sigs:
+			fmt.Println("Got shutdown, exiting")
+			// Break out of the outer for statement and end the program
+			break loop
+		case s := <-msg:
+			fmt.Println("Echoing: ", s)
 		}
 	}
 }
