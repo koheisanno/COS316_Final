@@ -34,6 +34,8 @@ func main() {
 		log.Fatalf("Error attaching to Interface: %s", err)
 	}
 
+	log.Println(*action)
+
 	if *action == "add" {
 		blacklist := bpf.GetMapByName("blacklist")
 		if blacklist == nil {
