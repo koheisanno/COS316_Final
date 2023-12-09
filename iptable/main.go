@@ -55,7 +55,8 @@ func main() {
 		// Receive input in a loop
 		for {
 			var s string
-			fmt.Scan(&s)
+			fmt.Scanln(&s)
+			log.Println("Input: ", s)
 			// Send what we read over the channel
 			msg <- s
 		}
