@@ -24,7 +24,6 @@ func main() {
 		log.Fatalf("LoadELF() failed: %s", err)
 	}
 	xdp := bpf.GetProgramByName("firewall")
-	blacklist := bpf.GetMapByName("blacklist")
 	if xdp == nil {
 		log.Fatalln("Program 'firewall' not found in Program")
 	}
@@ -36,7 +35,6 @@ func main() {
 	if err != nil {
 		log.Fatalf("Error attaching to Interface: %s", err)
 	}
-	AddIPAddress(blacklist, "146.190.33.175")
 
 	log.Println(*action)
 
