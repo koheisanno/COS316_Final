@@ -13,9 +13,6 @@ import (
 
 func main() {
 	interfaceName := flag.String("interface", "lo", "interface name")
-	action := flag.String("action", "start", "action")
-	ipAddress := flag.String("ip", "10.10.10.10", "ip address")
-
 	flag.Parse()
 
 	// Load XDP Into App
