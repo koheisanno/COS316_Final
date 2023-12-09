@@ -61,6 +61,9 @@ func main() {
 				break
 			}
 			line = strings.TrimRight(line, " \t\r\n")
+			if line == "quit" {
+				break
+			}
 			log.Println("Input: ", line)
 			// Send what we read over the channel
 			msg <- line
