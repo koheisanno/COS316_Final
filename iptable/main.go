@@ -46,14 +46,14 @@ func main() {
 		AddIPAddress(blacklist, *ipAddress)
 	} else if *action == "stop" {
 		xdp.Detach()
+	} else {
+		defer xdp.Detach()
+		ctrlC := make(chan os.Signal, 1)
+		signal.Notify(ctrlC, os.Interrupt)
+		log.Println("XDP Program Loaded successfuly into the Kernel.")
+		log.Println("Press CTRL+C to stop.")
+		<-ctrlC
 	}
-
-	defer xdp.Detach()
-	ctrlC := make(chan os.Signal, 1)
-	signal.Notify(ctrlC, os.Interrupt)
-	log.Println("XDP Program Loaded successfuly into the Kernel.")
-	log.Println("Press CTRL+C to stop.")
-	<-ctrlC
 }
 
 // The Function That adds the IPs to the blacklist map
