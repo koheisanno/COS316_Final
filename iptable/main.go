@@ -1,24 +1,28 @@
 package main
 
 import (
+	"bufio"
+	"flag"
 	"fmt"
 	"log"
 	"os"
 	"os/signal"
+	"strings"
 
 	"github.com/dropbox/goebpf"
 )
 
 func main() {
+	action := flag.String("action", "start", "action")
 
-	// Specify Interface Name
-	interfaceName := "lo"
 	// IP BlockList
 	// Add the IPs you want to be blocked
 	ipList := []string{
 		"12.12.11.32",
 		"146.190.33.175",
 	}
+
+	interfaceName := "lo"
 
 	// Load XDP Into App
 	bpf := goebpf.NewDefaultEbpfSystem()
@@ -30,6 +34,7 @@ func main() {
 	if blacklist == nil {
 		log.Fatalf("eBPF map 'blacklist' not found\n")
 	}
+
 	xdp := bpf.GetProgramByName("firewall")
 	if xdp == nil {
 		log.Fatalln("Program 'firewall' not found in Program")
@@ -44,6 +49,17 @@ func main() {
 	}
 
 	BlockIPAddress(ipList, blacklist)
+
+	reader := bufio.NewReader(os.Stdin)
+	for {
+		line, err := reader.ReadString('\n')
+		// lose trailing whitespace
+		line = strings.TrimRight(line, " \t\r\n")
+		if err != nil {
+			break
+		}
+		log.Println(line)
+	}
 
 	defer xdp.Detach()
 	ctrlC := make(chan os.Signal, 1)
