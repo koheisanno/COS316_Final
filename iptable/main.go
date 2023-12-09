@@ -1,16 +1,45 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"log"
 	"os"
 	"os/signal"
+	"strings"
 	"syscall"
 
 	"github.com/dropbox/goebpf"
 )
 
 func main() {
+	interfaceName := flag.String("interface", "lo", "interface name")
+	flag.Parse()
+
+	// Load XDP Into App
+	bpf := goebpf.NewDefaultEbpfSystem()
+	err := bpf.LoadElf("bpf/xdp.elf")
+	if err != nil {
+		log.Fatalf("LoadELF() failed: %s", err)
+	}
+	xdp := bpf.GetProgramByName("firewall")
+	if xdp == nil {
+		log.Fatalln("Program 'firewall' not found in Program")
+	}
+	err = xdp.Load()
+	if err != nil {
+		fmt.Printf("xdp.Load(): %v", err)
+	}
+	err = xdp.Attach(*interfaceName)
+	if err != nil {
+		log.Fatalf("xdp.Attach(): %s", err)
+	}
+	blacklist := bpf.GetMapByName("blacklist")
+	if blacklist == nil {
+		log.Fatalf("eBPF map 'blacklist' not found\n")
+	}
+	log.Println("XDP Program Loaded successfuly into the Kernel.")
+
 	// Go signal notification works by sending `os.Signal`
 	// values on a channel. We'll create a channel to
 	// receive these notifications (we'll also make one to
@@ -36,11 +65,25 @@ loop:
 	for {
 		select {
 		case <-sigs:
-			fmt.Println("Got shutdown, exiting")
+			log.Println("Detached")
+			xdp.Detach()
 			// Break out of the outer for statement and end the program
 			break loop
 		case s := <-msg:
-			fmt.Println("Echoing: ", s)
+			if s == "quit" {
+				log.Println("Detached")
+				xdp.Detach()
+				break loop
+			} else {
+				action := strings.Split(s, " ")[0]
+
+				if action == "add" {
+					ip := strings.Split(s, " ")[1]
+					log.Println("add" + ip)
+
+					AddIPAddress(blacklist, ip)
+				}
+			}
 		}
 	}
 }
