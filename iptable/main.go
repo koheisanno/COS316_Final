@@ -90,7 +90,7 @@ loop:
 
 // The Function That adds the IPs to the blacklist map
 func AddIPAddress(blacklist goebpf.Map, ipAddress string) error {
-	log.Println(goebpf.CreateLPMtrieKey(ipAddress))
+	log.Println("Adding " + goebpf.CreateLPMtrieKey(ipAddress) + " to blacklist")
 	err := blacklist.Insert(goebpf.CreateLPMtrieKey(ipAddress), 0)
 	if err != nil {
 		return err
